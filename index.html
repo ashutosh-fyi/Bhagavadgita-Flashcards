@@ -604,7 +604,7 @@
         <div class="card-face card-front">
           <div class="card-label">प्रश्न — Question</div>
           <div class="card-content" id="frontContent"></div>
-          <div class="card-hint"><span class="desktop-hint">press Space to reveal</span><span class="mobile-hint">tap to reveal</span></div>
+          <div class="card-hint"><span class="desktop-hint">press Space to reveal</span><span class="mobile-hint">tap to reveal · swipe for next</span></div>
         </div>
         <div class="card-face card-back">
           <div class="card-label">उत्तर — Answer</div>
@@ -911,6 +911,26 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'ArrowRight') { nextBtn.click(); }
   else if (e.key === ' ') { e.preventDefault(); card.click(); }
   else if (e.key === 'm' || e.key === 'M') { musicBtn.click(); }
+});
+
+// Swipe (mobile)
+let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+const cardScene = document.querySelector('.card-scene');
+
+cardScene.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].clientX;
+  touchStartY = e.changedTouches[0].clientY;
+  touchStartTime = Date.now();
+}, { passive: true });
+
+cardScene.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const dt = Date.now() - touchStartTime;
+  // Must be a quick horizontal swipe, not a scroll
+  if (dt > 400 || Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+  if (dx < 0) { nextBtn.click(); }
+  else { prevBtn.click(); }
 });
 
 // Mobile sidebar
