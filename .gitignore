@@ -1,8 +1,0 @@
-*.mp3
-*.mp4
-*.txt
-!requirements.txt
-.env
-.DS_Store
-.venv/
-__pycache__/
