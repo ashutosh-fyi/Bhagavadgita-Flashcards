@@ -830,44 +830,56 @@ sidebarList.addEventListener('click', e => {
   overlay.classList.remove('show');
 });
 
-// ── Bell chime on reveal (Web Audio) ──
-function playBell() {
+// ── Reveal sound (soft shimmer/sweep) ──
+function playReveal() {
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
   const now = ctx.currentTime;
 
-  // Sine tone — small temple bell
-  const osc = ctx.createOscillator();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(1200, now);
-  osc.frequency.exponentialRampToValueAtTime(800, now + 0.3);
+  // Filtered noise burst — breathy whoosh
+  const bufSize = ctx.sampleRate * 0.4;
+  const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+  const noise = ctx.createBufferSource();
+  noise.buffer = buf;
 
-  // Gentle overtone
-  const osc2 = ctx.createOscillator();
-  osc2.type = 'sine';
-  osc2.frequency.setValueAtTime(2400, now);
-  osc2.frequency.exponentialRampToValueAtTime(1600, now + 0.2);
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = 'bandpass';
+  noiseFilter.frequency.setValueAtTime(600, now);
+  noiseFilter.frequency.exponentialRampToValueAtTime(2500, now + 0.15);
+  noiseFilter.frequency.exponentialRampToValueAtTime(400, now + 0.35);
+  noiseFilter.Q.value = 0.8;
 
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.12, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0, now);
+  noiseGain.gain.linearRampToValueAtTime(0.07, now + 0.05);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
 
-  const gain2 = ctx.createGain();
-  gain2.gain.setValueAtTime(0.04, now);
-  gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+  noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
 
-  osc.connect(gain).connect(ctx.destination);
-  osc2.connect(gain2).connect(ctx.destination);
-  osc.start(now);
-  osc2.start(now);
-  osc.stop(now + 0.7);
-  osc2.stop(now + 0.4);
-  setTimeout(() => ctx.close(), 1000);
+  // Warm low tone — grounding hum
+  const tone = ctx.createOscillator();
+  tone.type = 'triangle';
+  tone.frequency.setValueAtTime(280, now);
+  tone.frequency.linearRampToValueAtTime(320, now + 0.2);
+
+  const toneGain = ctx.createGain();
+  toneGain.gain.setValueAtTime(0, now);
+  toneGain.gain.linearRampToValueAtTime(0.06, now + 0.04);
+  toneGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+  tone.connect(toneGain).connect(ctx.destination);
+
+  noise.start(now);
+  tone.start(now);
+  tone.stop(now + 0.3);
+  setTimeout(() => ctx.close(), 600);
 }
 
 // Card flip
 card.addEventListener('click', () => {
   card.classList.toggle('flipped');
-  playBell();
+  playReveal();
   setTimeout(autoHeight, 50);
 });
 
