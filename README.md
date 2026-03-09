@@ -8,6 +8,6 @@ That clarity has never been more needed than now.
 
 This is a simple flashcard tool for Chapter 3 — **Karma Yoga** — drawn from [Acharya Prashant's](https://acharyaprashant.org) Gita Samagam lectures. Not academic summaries, but insights that cut through: *Why does desire enslave? What is real action? How do you stop being a hypocrite?*
 
-The idea is small: in the middle of your day, pull up a card. Read a question. Sit with it. Let it interrupt the autopilot. The Gita doesn't need hours of study — it needs a moment of honesty.
+The idea is small: in the middle of your day, pull up a card. Read a question. Sit with it. Let it interrupt the autopilot. The Gita doesn't need hours of study — it needs a moment of honesty. I will add other chapters soon.
 
 **[Open the flashcards](https://ashutosh-fyi.github.io/Bhagavadgita-Flashcards/)**
