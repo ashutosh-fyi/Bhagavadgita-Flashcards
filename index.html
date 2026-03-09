@@ -445,6 +445,13 @@
     font-style: italic;
   }
 
+  .mobile-hint { display: none; }
+  @media (max-width: 768px) {
+    .mobile-hint { display: inline; }
+    .desktop-hint { display: none; }
+    .keyboard-hints { display: none; }
+  }
+
   /* ── Nav ── */
   .nav {
     display: flex;
@@ -597,12 +604,12 @@
         <div class="card-face card-front">
           <div class="card-label">प्रश्न — Question</div>
           <div class="card-content" id="frontContent"></div>
-          <div class="card-hint">click or press Space to reveal</div>
+          <div class="card-hint"><span class="desktop-hint">press Space to reveal</span><span class="mobile-hint">tap to reveal</span></div>
         </div>
         <div class="card-face card-back">
           <div class="card-label">उत्तर — Answer</div>
           <div class="card-content" id="backContent"></div>
-          <div class="card-hint">click or press Space to flip back</div>
+          <div class="card-hint"><span class="desktop-hint">press Space to flip back</span><span class="mobile-hint">tap to flip back</span></div>
         </div>
       </div>
     </div>
@@ -823,9 +830,44 @@ sidebarList.addEventListener('click', e => {
   overlay.classList.remove('show');
 });
 
+// ── Bell chime on reveal (Web Audio) ──
+function playBell() {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const now = ctx.currentTime;
+
+  // Sine tone — small temple bell
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(1200, now);
+  osc.frequency.exponentialRampToValueAtTime(800, now + 0.3);
+
+  // Gentle overtone
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(2400, now);
+  osc2.frequency.exponentialRampToValueAtTime(1600, now + 0.2);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.12, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+  const gain2 = ctx.createGain();
+  gain2.gain.setValueAtTime(0.04, now);
+  gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+  osc.connect(gain).connect(ctx.destination);
+  osc2.connect(gain2).connect(ctx.destination);
+  osc.start(now);
+  osc2.start(now);
+  osc.stop(now + 0.7);
+  osc2.stop(now + 0.4);
+  setTimeout(() => ctx.close(), 1000);
+}
+
 // Card flip
 card.addEventListener('click', () => {
   card.classList.toggle('flipped');
+  playBell();
   setTimeout(autoHeight, 50);
 });
 
